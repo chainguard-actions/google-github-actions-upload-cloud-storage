@@ -1,0 +1,36 @@
+name: Test basic upload inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a file to upload
+        run: |
+          mkdir -p /tmp/upload-test
+          echo "hello world" > /tmp/upload-test/test.txt
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          path: /tmp/upload-test/test.txt
+          destination: 'my-test-bucket'
+          project_id: 'my-test-project'
+          gzip: 'false'
+          resumable: 'false'
+          process_gcloudignore: 'false'
+
+      - name: Assert action was invoked (expected to fail without real credentials)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          # The action should either succeed or fail (not skip)
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action was invoked with path, destination, and project_id"

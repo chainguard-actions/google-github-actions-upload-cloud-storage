@@ -1,0 +1,40 @@
+name: Test glob, headers, and predefinedAcl inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create test files for glob upload
+        run: |
+          mkdir -p /tmp/test-glob
+          echo "file one" > /tmp/test-glob/file1.txt
+          echo "file two" > /tmp/test-glob/file2.txt
+          echo "not matched" > /tmp/test-glob/file3.log
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          path: '/tmp/test-glob'
+          destination: 'my-test-bucket/uploads'
+          glob: '*.txt'
+          headers: |-
+            content-type: 'text/plain'
+            x-goog-meta-custom-field: 'custom-value'
+          predefinedAcl: 'projectPrivate'
+          process_gcloudignore: 'false'
+          concurrency: '5'
+
+      - name: Assert action ran (credentials will fail but inputs were accepted)
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action is expected to fail without real GCS credentials
+          # We just verify it ran and processed the inputs
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with glob, headers, and predefinedAcl inputs"

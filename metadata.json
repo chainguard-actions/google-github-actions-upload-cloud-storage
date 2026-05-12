@@ -1,7 +1,7 @@
 {
   "owner": "google-github-actions",
   "name": "upload-cloud-storage",
-  "visibility": "internal",
+  "visibility": "public",
   "description": "Upload files or folders to GCS buckets",
   "block_publish": false
 }

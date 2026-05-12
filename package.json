@@ -1,0 +1,47 @@
+{
+  "name": "upload-cloud-storage",
+  "version": "2.2.2",
+  "description": "Upload to Google Cloud Storage (GCS)",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build -m src/main.ts",
+    "docs": "./node_modules/.bin/actions-gen-readme",
+    "lint": "eslint .",
+    "format": "eslint . --fix",
+    "test": "bash ./bin/runTests.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/google-github-actions/upload-cloud-storage"
+  },
+  "keywords": [
+    "actions",
+    "gcs",
+    "upload",
+    "google cloud",
+    "cloud storage"
+  ],
+  "author": "GoogleCloudPlatform",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@google-cloud/storage": "^7.15.0",
+    "@google-github-actions/actions-utils": "^0.8.6",
+    "fast-glob": "^3.3.3",
+    "ignore": "^7.0.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.19.0",
+    "@types/node": "^22.13.0",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@vercel/ncc": "^0.38.3",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint": "^9.19.0",
+    "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
+    "typescript-eslint": "^8.22.0",
+    "typescript": "^5.7.3"
+  }
+}

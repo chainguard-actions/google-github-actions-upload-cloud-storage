@@ -10,7 +10,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 |---------|-----|-----------------|
 | v2.2.2 | [`v2.2.2`](https://github.com/chainguard-actions/google-github-actions-upload-cloud-storage/tree/v2.2.2) | — |
 | v2.2.3 | [`v2.2.3`](https://github.com/chainguard-actions/google-github-actions-upload-cloud-storage/tree/v2.2.3) | [`7c73f5d`](https://github.com/google-github-actions/upload-cloud-storage/commit/7c73f5d6eae167341002e9c946f7479a609c588e) |
-| v2.2.4 | [`v2.2.4`](https://github.com/chainguard-actions/google-github-actions-upload-cloud-storage/tree/v2.2.4) | — |
+| v2.2.4 | [`v2.2.4`](https://github.com/chainguard-actions/google-github-actions-upload-cloud-storage/tree/v2.2.4) | [`c0f6160`](https://github.com/google-github-actions/upload-cloud-storage/commit/c0f6160ff80057923ff50e5e567695cea181ec23) |
 | v3.0.0 | [`v3.0.0`](https://github.com/chainguard-actions/google-github-actions-upload-cloud-storage/tree/v3.0.0) | [`6397bd7`](https://github.com/google-github-actions/upload-cloud-storage/commit/6397bd7208e18d13ba2619ee21b9873edc94427a) |
 
 ## Privacy

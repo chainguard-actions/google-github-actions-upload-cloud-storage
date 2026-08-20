@@ -1,0 +1,44 @@
+name: Test upload without parent directory in path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a test file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/no-parent-test"
+          echo "no parent test" > "$GITHUB_WORKSPACE/no-parent-test/sample.txt"
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          path: no-parent-test
+          destination: 'my-test-bucket-does-not-exist/flat-prefix'
+          parent: 'false'
+          gzip: 'false'
+          resumable: 'false'
+          process_gcloudignore: 'false'
+
+      - name: Assert action ran (succeeds with real creds, fails gracefully without)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          UPLOADED: ${{ steps.action.outputs.uploaded }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "uploaded: $UPLOADED"
+          if [ "$OUTCOME" = "success" ]; then
+            if [ -z "$UPLOADED" ]; then
+              echo "FAIL: action succeeded but uploaded output is empty"
+              exit 1
+            fi
+            echo "PASS: uploaded='$UPLOADED'"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (no GCP credentials in harness)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

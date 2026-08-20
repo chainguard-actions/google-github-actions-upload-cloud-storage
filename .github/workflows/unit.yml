@@ -1,0 +1,63 @@
+name: 'Unit'
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'release/**/*'
+  pull_request:
+    branches:
+      - 'main'
+      - 'release/**/*'
+  workflow_dispatch:
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+permissions:
+  contents: 'read'
+  id-token: 'write'
+  statuses: 'write'
+
+defaults:
+  run:
+    shell: 'bash'
+
+jobs:
+  unit:
+    runs-on: '${{ matrix.os }}'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
+
+    steps:
+      - uses: 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683' # ratchet:actions/checkout@v4
+
+      - uses: 'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020' # ratchet:actions/setup-node@v4
+        with:
+          node-version-file: 'package.json'
+
+      - name: 'npm build'
+        run: 'npm ci && npm run build'
+
+      # Only authenticate if this is a full CI run.
+      - if: |-
+          ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name }}
+        uses: 'google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093' # v3
+        with:
+          workload_identity_provider: '${{ vars.WIF_PROVIDER_NAME }}'
+          service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+
+      # The secrets will only be injected in pushes to main or from maintainers.
+      # If they aren't present, the associated steps are skipped.
+      - name: 'npm test'
+        run: 'npm run test'
+        env:
+          UPLOAD_CLOUD_STORAGE_TEST_BUCKET: '${{ vars.BUCKET_NAME }}'
+          UPLOAD_CLOUD_STORAGE_TEST_PROJECT: '${{ vars.PROJECT_ID }}'

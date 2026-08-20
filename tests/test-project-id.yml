@@ -1,4 +1,4 @@
-name: Test basic upload
+name: Test project_id input
 on:
   workflow_dispatch:
 jobs:
@@ -7,21 +7,21 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create a test file to upload
+      - name: Create a file to upload
         run: |
-          mkdir -p /tmp/upload-test
-          echo "hello world" > /tmp/upload-test/hello.txt
+          echo "test content for project_id test" > /tmp/test-project-id.txt
 
       - id: action
         uses: .
         continue-on-error: true
         with:
-          path: /tmp/upload-test/hello.txt
-          destination: 'fake-bucket-for-testing'
-          gzip: 'false'
-          resumable: 'false'
+          project_id: 'my-test-project'
+          path: /tmp/test-project-id.txt
+          destination: 'non-existent-bucket-for-testing'
+          gzip: false
+          resumable: false
 
-      - name: Assert action ran and failed gracefully (no GCP credentials)
+      - name: Assert action ran (succeeded or failed gracefully without credentials)
         env:
           OUTCOME: ${{ steps.action.outcome }}
           UPLOADED: ${{ steps.action.outputs.uploaded }}
@@ -33,9 +33,9 @@ jobs:
               echo "FAIL: action succeeded but uploaded output is empty"
               exit 1
             fi
-            echo "PASS: action succeeded and uploaded: $UPLOADED"
+            echo "PASS: uploaded output is '$UPLOADED'"
           elif [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action failed gracefully (expected - no GCP credentials in test harness)"
+            echo "PASS: action failed gracefully (no GCP credentials available in test environment)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1

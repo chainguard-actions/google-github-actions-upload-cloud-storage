@@ -1,4 +1,4 @@
-name: Test basic upload
+name: Test custom headers and options
 on:
   workflow_dispatch:
 jobs:
@@ -7,19 +7,23 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create a test file to upload
+      - name: Create a test file with content
         run: |
-          mkdir -p /tmp/upload-test
-          echo "hello world" > /tmp/upload-test/hello.txt
+          mkdir -p /tmp/headers-test
+          echo '{"key": "value"}' > /tmp/headers-test/data.json
 
       - id: action
         uses: .
         continue-on-error: true
         with:
-          path: /tmp/upload-test/hello.txt
-          destination: 'fake-bucket-for-testing'
+          path: /tmp/headers-test/data.json
+          destination: 'fake-bucket-for-testing/json-uploads'
           gzip: 'false'
           resumable: 'false'
+          predefinedAcl: 'private'
+          headers: |-
+            content-type: 'application/json'
+            x-goog-meta-env: 'test'
 
       - name: Assert action ran and failed gracefully (no GCP credentials)
         env:

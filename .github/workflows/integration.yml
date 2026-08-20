@@ -1,0 +1,57 @@
+name: 'Integration'
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'release/**/*'
+  pull_request:
+    branches:
+      - 'main'
+      - 'release/**/*'
+  workflow_dispatch:
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+permissions:
+  contents: 'read'
+  id-token: 'write'
+
+jobs:
+  integration:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683' # ratchet:actions/checkout@v4
+
+      - uses: 'actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a' # ratchet:actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: 'npm build'
+        run: 'npm ci && npm run build'
+
+      - uses: 'google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed' # v2
+        with:
+          workload_identity_provider: '${{ vars.WIF_PROVIDER_NAME }}'
+          service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+
+      - name: 'Create files'
+        run: |-
+          mkdir -p test
+          touch test/test1.txt
+          touch test/test2.txt
+
+      - id: 'upload'
+        name: 'Upload files'
+        uses: './'
+        with:
+          path: './test'
+          destination: '${{ vars.BUCKET_NAME }}/testprefix'
+
+      - name: 'Get output'
+        env:
+          UPLOADED: '${{ steps.upload.outputs.uploaded }}'
+        run: 'echo "$UPLOADED"'

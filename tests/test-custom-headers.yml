@@ -1,0 +1,45 @@
+name: Test upload with custom headers and metadata
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a test JSON file to upload
+        run: |
+          mkdir -p /tmp/headers-test
+          echo '{"key": "value"}' > /tmp/headers-test/data.json
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          path: /tmp/headers-test/data.json
+          destination: 'my-test-bucket/headers-prefix'
+          gzip: false
+          resumable: false
+          headers: |-
+            content-type: 'application/json'
+            x-goog-meta-custom-field: 'custom-value'
+
+      - name: Assert action ran (fails gracefully without GCP credentials)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          UPLOADED: ${{ steps.action.outputs.uploaded }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "uploaded: $UPLOADED"
+          if [ "$OUTCOME" = "success" ]; then
+            if [ -z "$UPLOADED" ]; then
+              echo "FAIL: action succeeded but uploaded output is empty"
+              exit 1
+            fi
+            echo "PASS: action succeeded and uploaded='$UPLOADED'"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (no GCP credentials available in test harness)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

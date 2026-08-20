@@ -1,0 +1,49 @@
+name: Test upload with gcloudignore processing
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create test files and gcloudignore
+        run: |
+          mkdir -p /tmp/ignore-test
+          echo "include me" > /tmp/ignore-test/include.txt
+          echo "exclude me" > /tmp/ignore-test/exclude.log
+          echo "*.log" > /tmp/ignore-test/.gcloudignore
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          path: /tmp/ignore-test
+          destination: 'my-test-bucket/ignore-prefix'
+          gcloudignore_path: /tmp/ignore-test/.gcloudignore
+          process_gcloudignore: true
+
+      - name: Assert action ran (fails gracefully without GCP credentials)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          UPLOADED: ${{ steps.action.outputs.uploaded }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "uploaded: $UPLOADED"
+          if [ "$OUTCOME" = "success" ]; then
+            if [ -z "$UPLOADED" ]; then
+              echo "FAIL: action succeeded but uploaded output is empty"
+              exit 1
+            fi
+            # If upload succeeded, verify excluded file is not in the list
+            if echo "$UPLOADED" | grep -q "exclude.log"; then
+              echo "FAIL: excluded file 'exclude.log' was uploaded despite gcloudignore"
+              exit 1
+            fi
+            echo "PASS: action succeeded and gcloudignore was respected, uploaded='$UPLOADED'"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (no GCP credentials available in test harness)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

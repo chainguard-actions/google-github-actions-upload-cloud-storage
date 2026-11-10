@@ -4,8 +4,13 @@
   "version": "v3.0.0",
   "commit_sha": "6397bd7208e18d13ba2619ee21b9873edc94427a",
   "url": "https://github.com/google-github-actions/upload-cloud-storage",
-  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "policy_sha": "374911c4be584df24e6da57af2d990570ef0f859",
   "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
   "test_agent_version": "2",
-  "harden_agent_version": "2"
+  "harden_agent_version": "2",
+  "dist_artifact": {
+    "gcs_uri": "gs://patch-actions-node-artifacts/dist-artifacts/google-github-actions/upload-cloud-storage/v3.0.0/sha256-25f40c0b4543cc6f5865f7e8bfb9e0843cf8396dbb6bb7872586988ab6dcaf3d.tar.gz",
+    "sha256": "25f40c0b4543cc6f5865f7e8bfb9e0843cf8396dbb6bb7872586988ab6dcaf3d",
+    "size_bytes": 463741
+  }
 }
